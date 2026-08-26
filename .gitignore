@@ -1,0 +1,6 @@
+.env
+.DS_Store
+
+# Local Docker/Grafana/Prometheus data should stay on the host.
+*_data/
+data/
