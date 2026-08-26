@@ -1,16 +1,16 @@
 # Raspberry Pi Monitoring
 
-Docker Compose monitoring stack for a Raspberry Pi using Prometheus, Grafana, and node_exporter.
+Raspberry Pi を Prometheus、Grafana、node_exporter で監視するための Docker Compose 構成です。
 
-This repository keeps the monitoring configuration in Git so the stack can be restored or updated easily after changing hosts, rebuilding the Pi, or editing dashboards.
+このリポジトリでは監視設定を Git で管理します。Raspberry Pi の再セットアップ、ホスト移行、ダッシュボード編集後の復元や更新をしやすくするための構成です。
 
-## Stack
+## 構成
 
-- Prometheus collects metrics and stores 30 days of time series data.
-- Grafana provides a pre-provisioned datasource and Raspberry Pi dashboard.
-- node_exporter exposes host metrics from the Raspberry Pi.
+- Prometheus: メトリクスを収集し、30日分の時系列データを保存します。
+- Grafana: Prometheus datasource と Raspberry Pi 用 dashboard を自動設定します。
+- node_exporter: Raspberry Pi ホストのメトリクスを公開します。
 
-## Repository Layout
+## ディレクトリ構成
 
 ```text
 .
@@ -27,101 +27,101 @@ This repository keeps the monitoring configuration in Git so the stack can be re
             `-- prometheus.yml
 ```
 
-## Requirements
+## 必要なもの
 
-- Raspberry Pi or Linux host
+- Raspberry Pi または Linux ホスト
 - Docker
 - Docker Compose plugin
 
-Check Docker Compose:
+Docker Compose が使えるか確認します。
 
 ```sh
 docker compose version
 ```
 
-## Setup
+## セットアップ
 
-Clone the repository:
+リポジトリを clone します。
 
 ```sh
 git clone git@github.com:yuta0225y/raspi-monitoring.git
 cd raspi-monitoring
 ```
 
-Create a local environment file:
+ローカル用の環境変数ファイルを作成します。
 
 ```sh
 cp .env.example .env
 ```
 
-Edit `.env` and set the Grafana admin user and password:
+`.env` を編集し、Grafana の管理ユーザー名とパスワードを設定します。
 
 ```env
 GF_SECURITY_ADMIN_USER=admin
 GF_SECURITY_ADMIN_PASSWORD=change-me
 ```
 
-Review the node_exporter target in `prometheus/prometheus.yml`. For example:
+`prometheus/prometheus.yml` の node_exporter の接続先を確認します。例:
 
 ```yaml
 targets:
   - 192.168.0.19:9100
 ```
 
-Update this value to match the host running node_exporter before starting the stack.
+起動前に、この値を node_exporter が動いているホストのアドレスに合わせて変更してください。
 
-Start the stack:
+スタックを起動します。
 
 ```sh
 docker compose up -d
 ```
 
-## Access
+## アクセス
 
-Open these from a browser on the same network:
+同じネットワーク上のブラウザからアクセスします。
 
 - Grafana: `http://<raspberry-pi-ip>:3000`
 - Prometheus: `http://<raspberry-pi-ip>:9090`
-- node_exporter metrics: `http://<raspberry-pi-ip>:9100/metrics`
+- node_exporter メトリクス: `http://<raspberry-pi-ip>:9100/metrics`
 
-The Grafana datasource and dashboard are provisioned automatically from `grafana/provisioning/` and `grafana/dashboards/`.
+Grafana の datasource と dashboard は `grafana/provisioning/` と `grafana/dashboards/` から自動で読み込まれます。
 
-## Operations
+## 操作
 
-View running containers:
+コンテナの状態確認:
 
 ```sh
 docker compose ps
 ```
 
-View logs:
+ログ確認:
 
 ```sh
 docker compose logs -f
 ```
 
-Restart the stack:
+再起動:
 
 ```sh
 docker compose restart
 ```
 
-Stop the stack:
+停止:
 
 ```sh
 docker compose down
 ```
 
-Update images:
+イメージ更新:
 
 ```sh
 docker compose pull
 docker compose up -d
 ```
 
-## Updating From Git
+## Git から更新する
 
-On the Raspberry Pi:
+Raspberry Pi 側で実行します。
 
 ```sh
 cd ~/monitoring
@@ -129,12 +129,12 @@ git pull --ff-only
 docker compose up -d
 ```
 
-## Data And Secrets
+## データと秘密情報
 
-The repository tracks configuration only. Local runtime data and secrets are intentionally excluded:
+このリポジトリでは設定ファイルのみを管理します。ローカルの実行データや秘密情報は Git 管理しません。
 
-- `.env` is ignored and should contain local Grafana credentials.
-- Prometheus data is stored in the `prometheus_data` Docker volume.
-- Grafana data is stored in the `grafana_data` Docker volume.
+- `.env` は Git 管理対象外です。Grafana の認証情報など、ローカル環境用の値を入れます。
+- Prometheus のデータは Docker volume `prometheus_data` に保存されます。
+- Grafana のデータは Docker volume `grafana_data` に保存されます。
 
-Use `.env.example` as the template for required environment variables.
+必要な環境変数は `.env.example` をテンプレートとして確認できます。
