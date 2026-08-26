@@ -1,5 +1,7 @@
 .env
 .DS_Store
+__pycache__/
+*.py[cod]
 
 # Local Docker/Grafana/Prometheus data should stay on the host.
 *_data/
