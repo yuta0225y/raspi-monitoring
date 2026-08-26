@@ -14,3 +14,11 @@ scrape_configs:
           - 192.168.0.19:9100
         labels:
           instance: raspi
+
+  - job_name: switchbot
+    scrape_interval: 5m
+    static_configs:
+      - targets:
+          - switchbot_exporter:8000
+        labels:
+          instance: switchbot

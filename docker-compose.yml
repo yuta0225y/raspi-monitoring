@@ -14,19 +14,34 @@ services:
       - prometheus_data:/prometheus
     restart: unless-stopped
 
+  switchbot_exporter:
+    build:
+      context: ./switchbot-exporter
+    container_name: switchbot_exporter
+    environment:
+      SWITCHBOT_TOKEN: ${SWITCHBOT_TOKEN:-}
+      SWITCHBOT_SECRET: ${SWITCHBOT_SECRET:-}
+      SWITCHBOT_CACHE_SECONDS: ${SWITCHBOT_CACHE_SECONDS:-300}
+      SWITCHBOT_DEVICE_IDS: ${SWITCHBOT_DEVICE_IDS:-}
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
     ports:
       - "3000:3000"
-    env_file:
-      - .env
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD:-admin}
     volumes:
       - grafana_data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
       - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
     depends_on:
       - prometheus
+      - switchbot_exporter
     restart: unless-stopped
 
   node_exporter:

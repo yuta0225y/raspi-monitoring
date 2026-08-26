@@ -9,6 +9,7 @@ Raspberry Pi を Prometheus、Grafana、node_exporter で監視するための D
 - Prometheus: メトリクスを収集し、30日分の時系列データを保存します。
 - Grafana: Prometheus datasource と Raspberry Pi 用 dashboard を自動設定します。
 - node_exporter: Raspberry Pi ホストのメトリクスを公開します。
+- switchbot_exporter: SwitchBot CO2センサーの値を Prometheus 形式で公開します。
 
 ## ディレクトリ構成
 
@@ -17,6 +18,9 @@ Raspberry Pi を Prometheus、Grafana、node_exporter で監視するための D
 |-- docker-compose.yml
 |-- prometheus/
 |   `-- prometheus.yml
+|-- switchbot-exporter/
+|   |-- Dockerfile
+|   `-- app.py
 `-- grafana/
     |-- dashboards/
     |   `-- raspi-overview.json
@@ -61,6 +65,17 @@ GF_SECURITY_ADMIN_USER=admin
 GF_SECURITY_ADMIN_PASSWORD=change-me
 ```
 
+SwitchBot API を使う場合は、SwitchBot アプリの開発者向けオプションから token と secret を取得し、`.env` に設定します。
+
+```env
+SWITCHBOT_TOKEN=change-me
+SWITCHBOT_SECRET=change-me
+SWITCHBOT_CACHE_SECONDS=300
+SWITCHBOT_DEVICE_IDS=
+```
+
+`SWITCHBOT_DEVICE_IDS` は空のままであれば、`MeterPro(CO2)` デバイスを自動検出します。特定のデバイスだけ取得したい場合は、カンマ区切りで device ID を指定します。
+
 `prometheus/prometheus.yml` の node_exporter の接続先を確認します。例:
 
 ```yaml
@@ -83,6 +98,7 @@ docker compose up -d
 - Grafana: `http://<raspberry-pi-ip>:3000`
 - Prometheus: `http://<raspberry-pi-ip>:9090`
 - node_exporter メトリクス: `http://<raspberry-pi-ip>:9100/metrics`
+- SwitchBot exporter メトリクス: `http://<raspberry-pi-ip>:8000/metrics`
 
 Grafana の datasource と dashboard は `grafana/provisioning/` と `grafana/dashboards/` から自動で読み込まれます。
 
@@ -119,6 +135,12 @@ docker compose pull
 docker compose up -d
 ```
 
+SwitchBot exporter の疎通確認:
+
+```sh
+curl http://localhost:8000/metrics
+```
+
 ## Git から更新する
 
 Raspberry Pi 側で実行します。
@@ -134,6 +156,7 @@ docker compose up -d
 このリポジトリでは設定ファイルのみを管理します。ローカルの実行データや秘密情報は Git 管理しません。
 
 - `.env` は Git 管理対象外です。Grafana の認証情報など、ローカル環境用の値を入れます。
+- SwitchBot の token と secret は `.env` にだけ保存します。
 - Prometheus のデータは Docker volume `prometheus_data` に保存されます。
 - Grafana のデータは Docker volume `grafana_data` に保存されます。
 

@@ -7,6 +7,7 @@
 このリポジトリは Raspberry Pi 上で動かす監視スタックの設定を管理します。
 
 - Docker Compose で Prometheus、Grafana、node_exporter を起動します。
+- SwitchBot exporter で CO2、温度、湿度、バッテリー残量を Prometheus 形式に変換します。
 - Grafana の datasource と dashboard は provisioning で自動設定します。
 - Raspberry Pi 側の実行ディレクトリは `/home/pi/monitoring` です。
 
@@ -25,6 +26,7 @@
 - `grafana/provisioning/datasources/prometheus.yml`: Grafana datasource 設定
 - `grafana/provisioning/dashboards/dashboards.yml`: Grafana dashboard provisioning 設定
 - `grafana/dashboards/raspi-overview.json`: Grafana dashboard JSON
+- `switchbot-exporter/app.py`: SwitchBot API からメトリクスを取得する exporter
 - `.env.example`: 必要な環境変数のテンプレート
 - `.gitignore`: コミットしないローカルファイルの定義
 
@@ -34,6 +36,10 @@
 
 ```sh
 docker compose config
+```
+
+```sh
+python3 -m py_compile switchbot-exporter/app.py
 ```
 
 ```sh
@@ -56,6 +62,12 @@ Grafana の dashboard を変更した場合は、Grafana 画面で dashboard が
 http://<raspberry-pi-ip>:3000
 ```
 
+SwitchBot exporter を変更した場合は、`/metrics` が Prometheus 形式で返ることを確認します。
+
+```text
+http://<raspberry-pi-ip>:8000/metrics
+```
+
 ## Raspberry Pi への反映
 
 GitHub に push したあと、Raspberry Pi 側で更新します。
@@ -70,5 +82,7 @@ docker compose up -d
 
 - `prometheus/prometheus.yml` の node_exporter target は環境依存です。
 - `.env.example` にはダミー値だけを書きます。
+- SwitchBot API token/secret は `.env` にだけ置きます。
+- CO2センサーが30分更新の場合、Prometheus scrape は5分以上の間隔で十分です。
 - `latest` タグを使っているため、イメージ更新時は挙動が変わる可能性があります。
 - 既存の dashboard JSON は Grafana が出力する大きな JSON なので、不要な整形変更は避けます。
