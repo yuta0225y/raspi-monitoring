@@ -83,6 +83,6 @@ docker compose up -d
 - `prometheus/prometheus.yml` の node_exporter target は環境依存です。
 - `.env.example` にはダミー値だけを書きます。
 - SwitchBot API token/secret は `.env` にだけ置きます。
-- CO2センサーが30分更新の場合、Prometheus scrape は5分以上の間隔で十分です。
+- CO2センサーが30分更新の場合でも、SwitchBot exporter 側で5分キャッシュするため、Prometheus scrape は1分間隔で問題ありません。
 - `latest` タグを使っているため、イメージ更新時は挙動が変わる可能性があります。
 - 既存の dashboard JSON は Grafana が出力する大きな JSON なので、不要な整形変更は避けます。

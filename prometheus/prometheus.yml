@@ -16,7 +16,7 @@ scrape_configs:
           instance: raspi
 
   - job_name: switchbot
-    scrape_interval: 5m
+    scrape_interval: 1m
     static_configs:
       - targets:
           - switchbot_exporter:8000
